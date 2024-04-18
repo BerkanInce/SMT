@@ -1,0 +1,137 @@
+# Load necessary libraries
+library(ggplot2)
+
+# Load datasets
+data(iris)
+data(PlantGrowth)
+
+# EDA for iris dataset
+cat("Summary statistics for iris dataset:\n")
+print(summary(iris))
+
+cat("\nStructure of iris dataset:\n")
+print(str(iris))
+
+cat("\nHead of iris dataset:\n")
+print(head(iris))
+
+# Visualize iris dataset
+# Scatter plot of petal length vs. petal width
+ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species)) + 
+  geom_point() + 
+  labs(title = "Scatter plot of Petal Length vs Petal Width",
+       x = "Petal Length",
+       y = "Petal Width")
+# Summary statistics
+cat("Summary statistics for PlantGrowth dataset:\n")
+print(summary(PlantGrowth))
+
+
+# Visualize distribution of weight by group
+ggplot(PlantGrowth, aes(x = weight, fill = group)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Distribution of Weight by Group",
+       x = "Weight",
+       y = "Density") +
+  theme_minimal()
+
+
+# EDA for PlantGrowth dataset
+cat("\nSummary statistics for PlantGrowth dataset:\n")
+print(summary(PlantGrowth))
+
+cat("\nStructure of PlantGrowth dataset:\n")
+print(str(PlantGrowth))
+
+cat("\nHead of PlantGrowth dataset:\n")
+print(head(PlantGrowth))
+
+# Visualize PlantGrowth dataset
+# Boxplot of plant weight by treatment
+ggplot(PlantGrowth, aes(x = factor(group), y = weight, fill = factor(group))) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Plant Weight by Treatment",
+       x = "Treatment",
+       y = "Plant Weight")
+
+# Regression analysis
+# Linear regression on combined datasets
+combined_data <- merge(iris, PlantGrowth, by = "Species")
+model <- lm(weight ~ Petal.Length + Petal.Width, data = combined_data)
+cat("\nSummary of Linear Regression Model for combined datasets:\n")
+print(summary(model))
+
+# Plotting regression line
+ggplot(combined_data, aes(x = Petal.Length, y = weight, color = Species)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Linear Regression: Plant Weight vs Petal Dimensions",
+       x = "Petal Length",
+       y = "Plant Weight")
+
+# Perform ANOVA for PlantGrowth dataset
+anova_plant <- aov(weight ~ group, data = PlantGrowth)
+cat("ANOVA for PlantGrowth dataset:\n")
+print(summary(anova_plant))
+
+# Perform ANOVA for iris dataset
+anova_iris <- aov(Sepal.Length ~ Species, data = iris)
+cat("\nANOVA for iris dataset:\n")
+print(summary(anova_iris))
+
+# Perform ANOVA for PlantGrowth dataset
+anova_plant <- aov(weight ~ group, data = PlantGrowth)
+
+# Get means by group
+means <- tapply(PlantGrowth$weight, PlantGrowth$group, mean)
+
+# Plot means by group
+barplot(means, 
+        main = "ANOVA for PlantGrowth dataset",
+        xlab = "Group", ylab = "Mean Weight", 
+        col = rainbow(length(means)))
+legend("topright", legend = levels(PlantGrowth$group), fill = rainbow(length(means)))
+
+# Perform ANOVA for iris dataset
+anova_iris <- aov(Sepal.Length ~ Species, data = iris)
+
+# Get means by species
+means <- tapply(iris$Sepal.Length, iris$Species, mean)
+
+# Plot means by species
+barplot(means, 
+        main = "ANOVA for iris dataset",
+        xlab = "Species", ylab = "Mean Sepal Length", 
+        col = rainbow(length(means)))
+legend("topright", legend = levels(iris$Species), fill = rainbow(length(means)))
+
+# Perform ANCOVA for PlantGrowth dataset
+ancova_plant <- aov(weight ~ group + weight + group:weight, data = PlantGrowth)
+cat("ANCOVA for PlantGrowth dataset:\n")
+print(summary(ancova_plant))
+
+# Perform ANCOVA for iris dataset
+ancova_iris <- aov(Sepal.Length ~ Species + Sepal.Width + Species:Sepal.Width, data = iris)
+cat("\nANCOVA for iris dataset:\n")
+print(summary(ancova_iris))
+
+# Fit ANCOVA model
+ancova_plant <- lm(weight ~ group + weight + group:weight, data = PlantGrowth)
+
+# Plot interaction between group and weight
+plot(PlantGrowth$weight, fitted(ancova_plant), 
+     xlab = "Weight", ylab = "Fitted Values",
+     main = "ANCOVA for PlantGrowth dataset")
+abline(lm(fitted(ancova_plant) ~ PlantGrowth$weight), col = "red")
+legend("topleft", legend = "Group", pch = 1, col = c("blue"))
+
+# Visualize ANCOVA for iris dataset
+# Plot interaction between Species and Sepal.Width
+interaction.plot(x.factor = iris$Species,
+                 trace.factor = iris$Sepal.Width,
+                 response = iris$Sepal.Length,
+                 fun = mean,
+                 type = "b",
+                 legend = TRUE)
+
+
